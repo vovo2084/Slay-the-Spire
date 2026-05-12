@@ -1,0 +1,447 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes, touch-action: manipulation">
+    <title>Slay the Spire Deck Helper (Free, Deck-ready)</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, 'Noto Sans', sans-serif;
+            background: #1e2a1a;
+            color: #f2f2e6;
+            margin: 0;
+            padding: 16px;
+        }
+        .container {
+            max-width: 1300px;
+            margin: 0 auto;
+            background: #2c3e2b;
+            border-radius: 32px;
+            padding: 20px 18px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.5);
+        }
+        h1, h2, h3 {
+            margin: 0 0 12px 0;
+            font-weight: 600;
+        }
+        h1 {
+            font-size: 1.8rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .sub {
+            text-align: center;
+            color: #c0dbb0;
+            margin-bottom: 24px;
+            font-size: 0.9rem;
+        }
+        .flex-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+        .card {
+            flex: 1;
+            min-width: 260px;
+            background: #3a5536;
+            border-radius: 28px;
+            padding: 18px 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+        }
+        button, .btn-like {
+            background: #f7b32b;
+            border: none;
+            color: #1e2a1a;
+            font-weight: bold;
+            font-size: 1rem;
+            padding: 12px 20px;
+            margin: 6px 4px;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            touch-action: manipulation;
+            min-width: 96px;
+            min-height: 48px;
+        }
+        button:active {
+            transform: scale(0.96);
+            background: #e09d1a;
+        }
+        select, input {
+            background: #f0f2e4;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border-radius: 48px;
+            border: none;
+            margin: 6px 4px;
+            min-height: 48px;
+        }
+        .tag {
+            background: #2b4427;
+            display: inline-block;
+            padding: 6px 14px;
+            margin: 6px 6px 0 0;
+            border-radius: 40px;
+            font-size: 0.85rem;
+        }
+        .delete-btn {
+            background: #aa3e2c;
+            color: white;
+            padding: 4px 12px;
+            font-size: 0.8rem;
+            margin-left: 8px;
+            min-width: auto;
+        }
+        .score-panel {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin: 16px 0 12px;
+        }
+        .score {
+            background: #1f2e1c;
+            padding: 8px 16px;
+            border-radius: 48px;
+            font-weight: bold;
+        }
+        .advice {
+            background: #2a4625;
+            border-radius: 24px;
+            padding: 12px;
+            margin-top: 12px;
+            font-style: italic;
+        }
+        hr {
+            border-color: #5a7a54;
+            margin: 20px 0;
+        }
+        @media (orientation: landscape) {
+            .container {
+                padding: 20px 24px;
+            }
+            .flex-row {
+                gap: 24px;
+            }
+        }
+        @media (max-width: 700px) {
+            button, .delete-btn {
+                min-width: 72px;
+            }
+        }
+        .reco-item {
+            background: #2b4427;
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 24px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>⚔️ Slay the Spire Helper</h1>
+    <div class="sub">Deck Strength Calculator · Beginner Builds · Path Advice</div>
+
+    <!-- 职业选择 -->
+    <div style="margin-bottom: 20px;">
+        <label for="classSelect" style="font-weight: bold;">Class: </label>
+        <select id="classSelect">
+            <option value="Ironclad">Ironclad</option>
+            <option value="Silent">Silent</option>
+        </select>
+    </div>
+
+    <div class="flex-row">
+        <!-- 左侧：卡组构建器 -->
+        <div class="card">
+            <h2>📜 Deck Builder</h2>
+            <div>
+                <label>➕ Add Card/Relic:</label>
+                <select id="itemSelect"></select>
+                <button id="addBtn">Add</button>
+            </div>
+            <div style="margin-top: 12px;">
+                <strong>Your Cards & Relics:</strong>
+                <div id="deckList" style="min-height: 80px; margin-top: 8px;"></div>
+                <button id="clearDeckBtn">Clear All</button>
+            </div>
+
+            <div class="score-panel">
+                <div class="score">💥 Offense: <span id="offScore">0</span></div>
+                <div class="score">🛡️ Defense: <span id="defScore">0</span></div>
+                <div class="score">♻️ Sustain: <span id="susScore">0</span></div>
+            </div>
+            <div class="advice" id="strengthAdvice">Select cards and relics to see evaluation.</div>
+        </div>
+
+        <!-- 中间：新手卡组推荐 -->
+        <div class="card">
+            <h2>📖 Beginner Builds</h2>
+            <label>Difficulty: </label>
+            <select id="diffSelect">
+                <option value="easy">Easy (Act 1-2)</option>
+                <option value="advanced">Advanced (Act 3+)</option>
+            </select>
+            <div id="recoList" style="margin-top: 16px;">Loading...</div>
+        </div>
+
+        <!-- 右侧：路线建议 -->
+        <div class="card">
+            <h2>🗺️ Path Advice</h2>
+            <p>Based on your current deck scores:</p>
+            <div id="pathAdvice" class="advice">Add cards to see recommended path.</div>
+        </div>
+    </div>
+    <hr>
+    <footer style="text-align: center; font-size: 0.8rem;">Free tool for Steam Deck · No ads yet · Data for Ironclad & Silent</footer>
+</div>
+
+<script>
+    // ========== 卡牌/遗物数据库 (English, Ironclad + Silent, 常见牌) ==========
+    const cardsData = {
+        Ironclad: [
+            { name: "Strike", type: "attack", dmg: 6, block: 0, cost: 1, sustain: 0 },
+            { name: "Defend", type: "skill", dmg: 0, block: 5, cost: 1, sustain: 0 },
+            { name: "Bash", type: "attack", dmg: 8, block: 0, cost: 2, sustain: 0, note: "Vulnerable" },
+            { name: "Clothesline", type: "attack", dmg: 12, block: 0, cost: 2, sustain: 0 },
+            { name: "Shrug It Off", type: "skill", dmg: 0, block: 8, cost: 1, sustain: 0 },
+            { name: "Twin Strike", type: "attack", dmg: 5*2, block: 0, cost: 1, sustain: 0 },
+            { name: "Iron Wave", type: "attack", dmg: 5, block: 5, cost: 1, sustain: 0 },
+            { name: "Spot Weakness", type: "skill", dmg: 0, block: 0, cost: 1, sustain: 0, buff: "strength" },
+            { name: "Reaper", type: "attack", dmg: 4, block: 0, cost: 2, sustain: 2 }, // heal
+            { name: "Burning Pact", type: "skill", dmg: 0, block: 0, cost: 1, sustain: 1 }, // draw
+            // relics
+            { name: "Burning Blood", type: "relic", sustain: 6, isRelic: true },
+            { name: "Vajra", type: "relic", dmgBuff: 1, isRelic: true },
+            { name: "Orichalcum", type: "relic", blockBuff: 6, isRelic: true }
+        ],
+        Silent: [
+            { name: "Strike", type: "attack", dmg: 6, block: 0, cost: 1, sustain: 0 },
+            { name: "Defend", type: "skill", dmg: 0, block: 5, cost: 1, sustain: 0 },
+            { name: "Neutralize", type: "attack", dmg: 3, block: 0, cost: 0, sustain: 0 },
+            { name: "Poisoned Stab", type: "attack", dmg: 6, block: 0, cost: 1, sustain: 0 },
+            { name: "Dagger Spray", type: "attack", dmg: 4, block: 0, cost: 1, sustain: 0 },
+            { name: "Backflip", type: "skill", dmg: 0, block: 5, cost: 1, sustain: 1 }, // draw
+            { name: "Cloak and Dagger", type: "skill", dmg: 0, block: 6, cost: 1, sustain: 0 },
+            { name: "Footwork", type: "power", dmg: 0, block: 0, cost: 1, sustain: 0, dexBuff: true },
+            { name: "Noxious Fumes", type: "power", dmg: 2, block: 0, cost: 1, sustain: 0 },
+            { name: "Burst", type: "skill", dmg: 0, block: 0, cost: 1, sustain: 0 },
+            // relics
+            { name: "Ring of the Snake", type: "relic", sustain: 2, isRelic: true },
+            { name: "Snecko Skull", type: "relic", dmgBuff: 1, isRelic: true }
+        ]
+    };
+
+    // 简化评分权重
+    function computeScores(deckList, classKey) {
+        let offense = 0, defense = 0, sustain = 0;
+        for (let item of deckList) {
+            const card = item.data;
+            if (card.isRelic) {
+                if (card.dmgBuff) offense += card.dmgBuff * 5;
+                if (card.blockBuff) defense += card.blockBuff;
+                if (card.sustain) sustain += card.sustain;
+                continue;
+            }
+            // 卡牌
+            let dmg = card.dmg || 0;
+            if (typeof dmg === 'string' && dmg.includes('*')) {
+                let parts = dmg.split('*');
+                dmg = parseInt(parts[0]) * parseInt(parts[1]);
+            }
+            offense += dmg * 1.2;
+            defense += (card.block || 0) * 1.5;
+            if (card.sustain) sustain += card.sustain * 4;
+            if (card.name === "Reaper") sustain += 8;
+            if (card.name === "Spot Weakness") offense += 8;
+            if (card.name === "Footwork") defense += 10;
+        }
+        return { offense: Math.floor(offense), defense: Math.floor(defense), sustain: Math.floor(sustain) };
+    }
+
+    function getAdviceText(off, def, sus) {
+        if (off === 0 && def === 0 && sus === 0) return "Add cards/relics to see recommended playstyle.";
+        let advice = "";
+        if (off > def + 15) advice += "🔥 High offense → prioritize Elites for relics. ";
+        else if (def > off + 10) advice += "🛡️ Strong defense → you can survive long fights, safe to take more Elites. ";
+        else advice += "⚖️ Balanced deck. ";
+        if (sus < 8) advice += "⚠️ Low sustain → prioritize Rest Sites or Shops with healing relics. ";
+        else advice += "✅ Good sustain → you can be more aggressive. ";
+        if (off < 20) advice += "🎯 Offense is low, avoid early Elites, grab more attacks. ";
+        return advice;
+    }
+
+    function getPathAdvice(off, def, sus) {
+        let path = "";
+        if (off < 30 && def < 20) path = "❌ Weak deck → avoid Elites, go for ? rooms and Rest Sites. Upgrade key cards.";
+        else if (off > 55 && def > 30) path = "🏆 Strong deck! Take the most Elite-heavy path to snowball relics.";
+        else if (off > 45) path = "💥 Good damage: take Elites but keep an eye on HP. Prioritize Campfires before Elites.";
+        else if (def > 35) path = "🛡️ Solid block: can handle hallway fights safely, but need scaling for boss. Visit Shops for powers.";
+        else path = "📉 Mixed power. Take events that offer removals or upgrades. Avoid unnecessary fights.";
+        return path;
+    }
+
+    // 预置新手卡组 (英文)
+    const beginnerBuilds = {
+        Ironclad: {
+            easy: {
+                name: "Ironclad Starter - Block & Bash",
+                cards: ["Strike","Strike","Defend","Defend","Bash","Shrug It Off","Iron Wave"],
+                relics: ["Burning Blood"],
+                advice: "Solid early game, upgrade Bash at first campfire. Look for strength cards."
+            },
+            advanced: {
+                name: "Ironclad Strength Reaper",
+                cards: ["Spot Weakness","Reaper","Twin Strike","Shrug It Off","Burning Pact","Strike","Defend"],
+                relics: ["Vajra","Burning Blood"],
+                advice: "Strength + Reaper gives sustain. Try to remove basic Strikes."
+            }
+        },
+        Silent: {
+            easy: {
+                name: "Silent Shiv Starter",
+                cards: ["Strike","Strike","Defend","Defend","Neutralize","Cloak and Dagger","Backflip"],
+                relics: ["Ring of the Snake"],
+                advice: "Use Backflip for draw, upgrade Neutralize early."
+            },
+            advanced: {
+                name: "Silent Poison Control",
+                cards: ["Poisoned Stab","Noxious Fumes","Burst","Backflip","Defend","Defend","Neutralize"],
+                relics: ["Snecko Skull","Ring of the Snake"],
+                advice: "Noxious Fumes alone solves many fights. Block with Backflip."
+            }
+        }
+    };
+
+    function renderRecommendations() {
+        const classVal = document.getElementById("classSelect").value;
+        const diff = document.getElementById("diffSelect").value;
+        let builds = beginnerBuilds[classVal];
+        if (!builds) builds = beginnerBuilds.Ironclad;
+        let build = (diff === "easy") ? builds.easy : builds.advanced;
+        if (!build) build = builds.easy;
+        const recoDiv = document.getElementById("recoList");
+        recoDiv.innerHTML = `
+            <div class="reco-item">
+                <strong>${build.name}</strong><br>
+                📜 Cards: ${build.cards.join(", ")}<br>
+                💎 Relics: ${build.relics.join(", ")}<br>
+                💡 Tip: ${build.advice}
+                <button class="btn-like" style="margin-top:8px;" onclick="loadBuild('${classVal}','${JSON.stringify(build.cards)}','${JSON.stringify(build.relics)}')">Try this deck</button>
+            </div>
+        `;
+    }
+
+    window.loadBuild = function(className, cardsJson, relicsJson) {
+        const cards = JSON.parse(cardsJson);
+        const relics = JSON.parse(relicsJson);
+        // 清空当前deck
+        currentDeck = [];
+        // 添加卡牌
+        cards.forEach(cardName => {
+            const found = cardsData[className].find(c => c.name === cardName);
+            if (found) currentDeck.push({ name: cardName, data: found, type: "card" });
+        });
+        relics.forEach(relName => {
+            const found = cardsData[className].find(r => r.name === relName && r.isRelic);
+            if (found) currentDeck.push({ name: relName, data: found, type: "relic" });
+        });
+        updateDeckUI();
+        updateScoresAndAdvice();
+    };
+
+    let currentDeck = []; // { name, data, type }
+
+    function updateDeckUI() {
+        const deckDiv = document.getElementById("deckList");
+        if (currentDeck.length === 0) {
+            deckDiv.innerHTML = "<em>No cards or relics added. Use dropdown + Add.</em>";
+            return;
+        }
+        let html = "";
+        currentDeck.forEach((item, idx) => {
+            html += `<span class="tag">${item.name} <button class="delete-btn" data-idx="${idx}">✖</button></span>`;
+        });
+        deckDiv.innerHTML = html;
+        // 绑定删除事件
+        document.querySelectorAll(".delete-btn").forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                const idx = parseInt(btn.getAttribute("data-idx"));
+                currentDeck.splice(idx, 1);
+                updateDeckUI();
+                updateScoresAndAdvice();
+            });
+        });
+    }
+
+    function updateScoresAndAdvice() {
+        const classVal = document.getElementById("classSelect").value;
+        const scores = computeScores(currentDeck, classVal);
+        document.getElementById("offScore").innerText = scores.offense;
+        document.getElementById("defScore").innerText = scores.defense;
+        document.getElementById("susScore").innerText = scores.sustain;
+        const advice = getAdviceText(scores.offense, scores.defense, scores.sustain);
+        document.getElementById("strengthAdvice").innerHTML = advice;
+        const pathMsg = getPathAdvice(scores.offense, scores.defense, scores.sustain);
+        document.getElementById("pathAdvice").innerHTML = pathMsg;
+    }
+
+    function populateSelect() {
+        const classVal = document.getElementById("classSelect").value;
+        const items = cardsData[classVal] || cardsData.Ironclad;
+        const select = document.getElementById("itemSelect");
+        select.innerHTML = "";
+        items.forEach(item => {
+            const option = document.createElement("option");
+            option.value = item.name;
+            option.textContent = `${item.name} (${item.isRelic ? "Relic" : item.type})`;
+            select.appendChild(option);
+        });
+    }
+
+    document.getElementById("addBtn").addEventListener("click", () => {
+        const classVal = document.getElementById("classSelect").value;
+        const selectedName = document.getElementById("itemSelect").value;
+        const items = cardsData[classVal];
+        const found = items.find(i => i.name === selectedName);
+        if (found) {
+            const exists = currentDeck.some(i => i.name === found.name);
+            if (!exists || found.type !== "relic") { // allow multiple cards but for simplicity just allow duplicates? fine
+                currentDeck.push({ name: found.name, data: found, type: found.isRelic ? "relic" : "card" });
+                updateDeckUI();
+                updateScoresAndAdvice();
+            } else {
+                alert("Relic already added (unique)");
+            }
+        }
+    });
+
+    document.getElementById("clearDeckBtn").addEventListener("click", () => {
+        currentDeck = [];
+        updateDeckUI();
+        updateScoresAndAdvice();
+    });
+
+    document.getElementById("classSelect").addEventListener("change", () => {
+        populateSelect();
+        currentDeck = [];
+        updateDeckUI();
+        updateScoresAndAdvice();
+        renderRecommendations();
+    });
+
+    document.getElementById("diffSelect").addEventListener("change", () => {
+        renderRecommendations();
+    });
+
+    // 初始化
+    populateSelect();
+    renderRecommendations();
+    updateDeckUI();
+    updateScoresAndAdvice();
+</script>
+</body>
+</html>
